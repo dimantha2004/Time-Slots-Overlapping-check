@@ -1,6 +1,7 @@
 package com.example.test;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,17 +32,13 @@ public class TestAgendaServiceImpl implements TestAgendaService {
 
     @Override
     public TestAgendaTaskDTO addTaskToAgenda(TestAgendaTaskDTO taskDTO) {
-        validateTaskDTO(taskDTO);
-
         AgendaEntity agenda = agendaRepository.findById(taskDTO.getAgendaId())
-                .orElseThrow(() -> new IllegalArgumentException("Agenda not found with id: " + taskDTO.getAgendaId()));
-
-        validateTaskTimes(taskDTO);
-        checkForOverlaps(taskDTO, agenda);
+                .orElseThrow(() -> new RuntimeException("Agenda not found"));
 
         TestAgendaTaskEntity savedTask = testAgendaRepository.save(convertToEntity(taskDTO, agenda));
         return convertToDTO(savedTask);
     }
+
 
     @Override
     public List<TestAgendaTaskDTO> getTasksByAgenda(Long agendaId) {
@@ -63,19 +60,19 @@ public class TestAgendaServiceImpl implements TestAgendaService {
         }
     }
 
-    private void checkForOverlaps(TestAgendaTaskDTO taskDTO, AgendaEntity agenda) {
-        List<TestAgendaTaskEntity> existingTasks = testAgendaRepository.findByAgendaId(agenda.getId());
-        TestAgendaTaskEntity newTask = convertToEntity(taskDTO, agenda);
+//    private void checkForOverlaps(TestAgendaTaskDTO taskDTO, AgendaEntity agenda) {
+//        List<TestAgendaTaskEntity> existingTasks = testAgendaRepository.findByAgendaId(agenda.getId());
+//        TestAgendaTaskEntity newTask = convertToEntity(taskDTO, agenda);
+//
+//        if (existingTasks.stream().anyMatch(existing -> isOverlapping(newTask, existing))) {
+//            throw new IllegalArgumentException("Time slot overlaps with existing task in this agenda");
+//        }
+//    }
 
-        if (existingTasks.stream().anyMatch(existing -> isOverlapping(newTask, existing))) {
-            throw new IllegalArgumentException("Time slot overlaps with existing task in this agenda");
-        }
-    }
-
-    private boolean isOverlapping(TestAgendaTaskEntity task1, TestAgendaTaskEntity task2) {
-        return task1.getStartTime().isBefore(task2.getEndTime()) &&
-                task1.getEndTime().isAfter(task2.getStartTime());
-    }
+//    private boolean isOverlapping(TestAgendaTaskEntity task1, TestAgendaTaskEntity task2) {
+//        return task1.getStartTime().isBefore(task2.getEndTime()) &&
+//                task1.getEndTime().isAfter(task2.getStartTime());
+//    }
 
     private void validateTaskTimes(TestAgendaTaskDTO task) {
         if (task.getStartTime() == null || task.getEndTime() == null) {

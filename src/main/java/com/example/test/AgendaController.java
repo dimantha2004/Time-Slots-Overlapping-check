@@ -26,11 +26,27 @@ public class AgendaController {
     }
 
     @PostMapping("/{agendaId}/tasks")
-    public ResponseEntity<TestAgendaTaskDTO> addTaskToAgenda(
+    public ResponseEntity<String> addTaskToAgenda(
             @PathVariable Long agendaId,
             @RequestBody TestAgendaTaskDTO taskDTO) {
+
         taskDTO.setAgendaId(agendaId);
-        return ResponseEntity.ok(agendaService.addTaskToAgenda(taskDTO));
+
+        List<TestAgendaTaskDTO> existingTasks = agendaService.getTasksByAgenda(agendaId);
+
+        for (TestAgendaTaskDTO existing : existingTasks) {
+            if (isOverlapping(taskDTO, existing)) {
+                return ResponseEntity.badRequest().body("time is overlapping");
+            }
+        }
+
+        TestAgendaTaskDTO result = agendaService.addTaskToAgenda(taskDTO);
+        return ResponseEntity.ok("Task added successfully");
+    }
+
+    private boolean isOverlapping(TestAgendaTaskDTO newTask, TestAgendaTaskDTO existing) {
+        return newTask.getStartTime().isBefore(existing.getEndTime()) &&
+                newTask.getEndTime().isAfter(existing.getStartTime());
     }
 
     @GetMapping("/{agendaId}/tasks")
