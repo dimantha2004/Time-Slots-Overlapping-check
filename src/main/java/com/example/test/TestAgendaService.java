@@ -4,7 +4,7 @@ import java.util.List;
 
 public interface TestAgendaService {
     AgendaDTO createAgenda(AgendaDTO agendaDTO);
-    TestAgendaTaskDTO addTaskToAgenda(TestAgendaTaskDTO taskDTO) throws IllegalArgumentException;
+    TestAgendaTaskDTO addTaskToAgenda(TestAgendaTaskDTO taskDTO);
     List<TestAgendaTaskDTO> getTasksByAgenda(Long agendaId);
     List<AgendaDTO> getAllAgendas();
 }

@@ -8,11 +8,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/agendas")
-public class AgendaController {
+public class AgendaTaskController {
 
     private final TestAgendaService agendaService;
 
-    public AgendaController(TestAgendaService agendaService) {
+    public AgendaTaskController(TestAgendaService agendaService) {
         this.agendaService = agendaService;
     }
 
